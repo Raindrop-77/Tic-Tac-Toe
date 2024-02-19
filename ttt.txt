@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            gap: 5px;
+            margin: 20px auto;
+        }
+
+        .cell {
+            width: 100px;
+            height: 100px;
+            font-size: 24px;
+            cursor: pointer;
+            border: 1px solid #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cell:hover {
+            background-color: #eee;
+        }
+
+        .message {
+            font-size: 18px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="board" class="board"></div>
+<div id="message" class="message">Your turn!</div>
+
+<script>
+    // Initialize the game board
+    const board = document.getElementById("board");
+    const message = document.getElementById("message");
+    let currentPlayer = "X";
+    let gameOver = false;
+
+    // Create the Tic Tac Toe grid
+    for (let i = 0; i < 9; i++) {
+        const cell = document.createElement("div");
+        cell.classList.add("cell");
+        cell.addEventListener("click", () => makeMove(i));
+        board.appendChild(cell);
+    }
+
+    // Make a move on the board
+    function makeMove(index) {
+        if (gameOver) return;
+
+        const cell = board.children[index];
+
+        // Check if the cell is already occupied
+        if (cell.textContent !== "") {
+            message.textContent = "This cell is already occupied. Try again.";
+            return;
+        }
+
+        // Make the move
+        cell.textContent = currentPlayer;
+        cell.style.color = currentPlayer === "X" ? "blue" : "red";
+
+        // Check for a winner
+        if (checkWinner()) {
+            message.textContent = `${currentPlayer} wins!`;
+            gameOver = true;
+        } else if (isBoardFull()) {
+            message.textContent = "It's a tie!";
+            gameOver = true;
+        } else {
+            // Switch to the next player
+            currentPlayer = currentPlayer === "X" ? "O" : "X";
+            message.textContent = `${currentPlayer}'s turn`;
+            if (currentPlayer === "O") {
+                // Computer's turn (random move for simplicity)
+                setTimeout(() => makeComputerMove(), 500);
+            }
+        }
+    }
+
+    // Check for a winner
+    function checkWinner() {
+        const lines = [
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8],
+            [0, 3, 6],
+            [1, 4, 7],
+            [2, 5, 8],
+            [0, 4, 8],
+            [2, 4, 6]
+        ];
+
+        for (const line of lines) {
+            const [a, b, c] = line;
+            if (board.children[a].textContent !== "" &&
+                board.children[a].textContent === board.children[b].textContent &&
+                board.children[a].textContent === board.children[c].textContent) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // Check if the board is full
+    function isBoardFull() {
+        for (const cell of board.children) {
+            if (cell.textContent === "") {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Computer makes a random move
+    function makeComputerMove() {
+        if (gameOver) return;
+
+        const emptyCells = [];
+        for (let i = 0; i < 9; i++) {
+            if (board.children[i].textContent === "") {
+                emptyCells.push(i);
+            }
+        }
+
+        const randomIndex = Math.floor(Math.random() * emptyCells.length);
+        makeMove(emptyCells[randomIndex]);
+    }
+</script>
+
+</body>
+</html>
